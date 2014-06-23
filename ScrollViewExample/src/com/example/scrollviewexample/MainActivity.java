@@ -3,12 +3,20 @@ package com.example.scrollviewexample;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
+import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.os.Build;
 
 public class MainActivity extends ActionBarActivity {
@@ -49,6 +57,10 @@ public class MainActivity extends ActionBarActivity {
 	 */
 	public static class PlaceholderFragment extends Fragment {
 
+		private ListView listView;
+		private Context context;
+		Aleph0 adapter = new Aleph0();
+
 		public PlaceholderFragment() {
 		}
 
@@ -57,8 +69,63 @@ public class MainActivity extends ActionBarActivity {
 				Bundle savedInstanceState) {
 			View rootView = inflater.inflate(R.layout.fragment_main, container,
 					false);
+			// context = container.getContext();
+			listView = (ListView) rootView.findViewById(R.id.listView);
+			listView.setAdapter(adapter);
+			listView.setOnScrollListener(new OnScrollListener() {
+				@Override
+				public void onScrollStateChanged(AbsListView view,
+						int scrollState) {
+					// TODO Auto-generated method stub
+
+				}
+
+				@Override
+				public void onScroll(AbsListView view, int firstVisibleItem,
+						int visibleItemCount, int totalItemCount) {
+					boolean loadMore = /* maybe add a padding */
+					firstVisibleItem + visibleItemCount >= totalItemCount;
+
+					if (loadMore) {
+						adapter.count += visibleItemCount; // or any other
+															// amount
+						adapter.notifyDataSetChanged();
+					}
+				}
+			});
 			return rootView;
 		}
-	}
 
+		@Override
+		public void onAttach(Activity activity) {
+			// TODO Auto-generated method stub
+			super.onAttach(activity);
+			context = activity;
+		}
+
+		public class Aleph0 extends BaseAdapter {
+			int count = 40; /* starting amount */
+
+			public int getCount() {
+				return count;
+			}
+
+			public Object getItem(int pos) {
+				return pos;
+			}
+
+			public long getItemId(int pos) {
+				return pos;
+			}
+
+			public View getView(int pos, View v, ViewGroup p) {
+				TextView view = new TextView(context/*
+													 * getActivity().
+													 * getApplicationContext()
+													 */);
+				view.setText("entry " + pos);
+				return view;
+			}
+		}
+	}
 }
